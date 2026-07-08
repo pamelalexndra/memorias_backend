@@ -1,6 +1,6 @@
 package com.app.memorias.auth;
 
-import com.pamelapp.memorias.user.AppUser;
+import com.app.memorias.user.AppUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -13,15 +13,25 @@ import java.util.Date;
 
 @Service
 public class JwtService {
+
     @Value("${app.jwt.secret}")
     private String jwtSecret;
+
     @Value("${app.jwt.expiration-ms}")
     private long jwtExpirationMs;
 
     public String generateToken(AppUser user) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + jwtExpirationMs);
-        return Jwts.builder().subject(user.getId().toString()).claim("email", user.getEmail()).claim("username", user.getUsername()).issuedAt(now).expiration(expiration).signWith(getSigningKey()).compact();
+
+        return Jwts.builder()
+                .subject(user.getId().toString())
+                .claim("email", user.getEmail())
+                .claim("username", user.getUsername())
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(getSigningKey())
+                .compact();
     }
 
     public Long extractUserId(String token) {
@@ -39,7 +49,11 @@ public class JwtService {
     }
 
     private Claims extractClaims(String token) {
-        return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private SecretKey getSigningKey() {
